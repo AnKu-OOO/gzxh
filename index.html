@@ -33,7 +33,6 @@
             position: relative;
         }
 
-        /* 顶部导航栏 */
         .navbar {
             background: #ffffff;
             padding: 12px 16px;
@@ -90,7 +89,6 @@
             border-radius: 50%;
         }
 
-        /* 主要内容区域 */
         .main-content {
             flex: 1;
             padding: 16px;
@@ -99,7 +97,6 @@
             gap: 16px;
         }
 
-        /* 卡片通用样式 */
         .card {
             background: #ffffff;
             border-radius: 16px;
@@ -107,13 +104,11 @@
             box-shadow: 0 2px 12px rgba(0,0,0,0.06);
         }
 
-        /* 个人信息卡片 */
         .profile-card {
             display: flex;
             align-items: center;
         }
 
-        /* 用户头像 */
         .avatar {
             width: 44px;
             height: 28px;
@@ -155,7 +150,6 @@
             line-height: 1.4;
         }
 
-        /* 已认证标签 */
         .verified-tag {
             background: #e8f5e9;
             border-radius: 20px;
@@ -177,7 +171,6 @@
             font-weight: bold;
         }
 
-        /* 功能二维码卡片头部 */
         .qr-header {
             display: flex;
             justify-content: space-between;
@@ -203,23 +196,34 @@
             background: #e3f2fd;
         }
 
-        /* 二维码容器 */
         .qrcode-container {
             display: flex;
             justify-content: center;
             margin-bottom: 8px;
             padding: 10px 0;
         }
-        canvas {
-            display: block;
+
+        /* 二维码网格 */
+        .qr-grid {
             width: 260px;
             height: 260px;
-            border-radius: 12px;
+            display: grid;
+            grid-template-columns: repeat(21, 1fr);
+            grid-template-rows: repeat(21, 1fr);
             background: #fff;
-            border: 1px solid #e0e0e0;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
         }
 
-        /* 二维码说明文字 */
+        .qr-cell {
+            background: #fff;
+        }
+
+        .qr-cell.dark {
+            background: #000;
+        }
+
         .qr-desc {
             text-align: center;
             color: #888;
@@ -232,7 +236,6 @@
             color: #555;
         }
 
-        /* 底部版权 */
         .footer {
             padding: 24px 16px 20px;
             text-align: center;
@@ -241,7 +244,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* 提示浮层 */
         .toast {
             position: fixed;
             top: 30px;
@@ -261,11 +263,14 @@
         .toast.show {
             opacity: 1;
         }
+
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- 顶部导航栏 -->
         <div class="navbar">
             <span class="back-btn" id="backBtn">←</span>
             <span class="nav-spacer"></span>
@@ -276,9 +281,7 @@
             </span>
         </div>
 
-        <!-- 主体内容 -->
         <div class="main-content">
-            <!-- 个人信息卡片 -->
             <div class="card profile-card">
                 <div class="avatar"></div>
                 <div class="profile-info">
@@ -291,14 +294,16 @@
                 </div>
             </div>
 
-            <!-- 功能二维码卡片 -->
             <div class="card">
                 <div class="qr-header">
                     <span class="qr-title">广州新华学院</span>
                     <span class="refresh-btn" id="refreshBtn">刷新</span>
                 </div>
                 <div class="qrcode-container">
-                    <canvas id="qrCanvas" width="260" height="260"></canvas>
+                    <!-- 二维码A -->
+                    <div class="qr-grid" id="qrA"></div>
+                    <!-- 二维码B -->
+                    <div class="qr-grid hidden" id="qrB"></div>
                 </div>
                 <div class="qr-desc">
                     <div>扫描二维码开门</div>
@@ -307,38 +312,20 @@
             </div>
         </div>
 
-        <!-- 底部版权 -->
         <div class="footer">
             © 2025 新华码 | 广州新华学院信息与网络中心
         </div>
     </div>
 
-    <!-- 提示浮层 -->
     <div class="toast" id="toast"></div>
 
     <script>
         window.onload = function() {
-            
-            var canvas = document.getElementById('qrCanvas');
-            var ctx = canvas.getContext('2d');
-            var size = 260;
+
             var modules = 21;
-            var moduleSize = size / modules;
+            var currentQR = 0; // 0=A, 1=B
 
-            // 当前二维码编号 (0 或 1)
-            var currentQR = 0;
-
-            // 绘制定位图案
-            function drawFinder(x, y) {
-                ctx.fillStyle = '#000';
-                ctx.fillRect(x, y, 7*moduleSize, 7*moduleSize);
-                ctx.fillStyle = '#fff';
-                ctx.fillRect(x+moduleSize, y+moduleSize, 5*moduleSize, 5*moduleSize);
-                ctx.fillStyle = '#000';
-                ctx.fillRect(x+2*moduleSize, y+2*moduleSize, 3*moduleSize, 3*moduleSize);
-            }
-
-            // 检查是否在定位图案区域
+            // 判断是否在定位图案区域
             function isInFinder(row, col) {
                 if (row < 7 && col < 7) return true;
                 if (row < 7 && col >= 14) return true;
@@ -346,32 +333,74 @@
                 return false;
             }
 
-            // 绘制二维码 (seed不同，图案不同)
-            function drawQRCode(seed) {
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0, 0, size, size);
+            // 判断是否在定位图案的外框
+            function isFinderOuter(row, col, startRow, startCol) {
+                var r = row - startRow;
+                var c = col - startCol;
+                return (r === 0 || r === 6 || c === 0 || c === 6);
+            }
 
-                drawFinder(0, 0);
-                drawFinder(size-7*moduleSize, 0);
-                drawFinder(0, size-7*moduleSize);
+            // 判断是否在定位图案的内核
+            function isFinderInner(row, col, startRow, startCol) {
+                var r = row - startRow;
+                var c = col - startCol;
+                return (r >= 2 && r <= 4 && c >= 2 && c <= 4);
+            }
 
+            // 检查任意定位图案的外框
+            function inAnyFinderOuter(row, col) {
+                if (row < 7 && col < 7 && isFinderOuter(row, col, 0, 0)) return true;
+                if (row < 7 && col >= 14 && isFinderOuter(row, col, 0, 14)) return true;
+                if (row >= 14 && col < 7 && isFinderOuter(row, col, 14, 0)) return true;
+                return false;
+            }
+
+            // 检查任意定位图案的内核
+            function inAnyFinderInner(row, col) {
+                if (row < 7 && col < 7 && isFinderInner(row, col, 0, 0)) return true;
+                if (row < 7 && col >= 14 && isFinderInner(row, col, 0, 14)) return true;
+                if (row >= 14 && col < 7 && isFinderInner(row, col, 14, 0)) return true;
+                return false;
+            }
+
+            // 生成二维码网格
+            function buildQRGrid(containerId, seed) {
+                var container = document.getElementById(containerId);
+                container.innerHTML = '';
                 for (var row = 0; row < modules; row++) {
                     for (var col = 0; col < modules; col++) {
-                        if (isInFinder(row, col)) continue;
-                        var rand = ((row * 31 + col * 17 + seed) % 100) / 100;
-                        if (rand < 0.4) {
-                            ctx.fillStyle = '#000';
-                            ctx.fillRect(col*moduleSize, row*moduleSize, moduleSize, moduleSize);
+                        var cell = document.createElement('div');
+                        cell.className = 'qr-cell';
+                        var dark = false;
+
+                        if (inAnyFinderOuter(row, col) || inAnyFinderInner(row, col)) {
+                            dark = true;
+                        } else if (!isInFinder(row, col)) {
+                            var rand = ((row * 31 + col * 17 + seed) % 100) / 100;
+                            if (rand < 0.38) {
+                                dark = true;
+                            }
                         }
+
+                        if (dark) {
+                            cell.classList.add('dark');
+                        }
+                        container.appendChild(cell);
                     }
                 }
             }
 
-            // 绘制当前二维码
-            function drawCurrentQR() {
-                // 两个固定种子，图案稳定且不同
-                var seeds = [1357, 2468];
-                drawQRCode(seeds[currentQR]);
+            // 显示当前二维码
+            function showCurrentQR() {
+                var qrA = document.getElementById('qrA');
+                var qrB = document.getElementById('qrB');
+                if (currentQR === 0) {
+                    qrA.classList.remove('hidden');
+                    qrB.classList.add('hidden');
+                } else {
+                    qrA.classList.add('hidden');
+                    qrB.classList.remove('hidden');
+                }
             }
 
             // 倒计时
@@ -380,21 +409,28 @@
             var timer = null;
 
             function updateDisplay() {
-                var  = remaining;
-                var m = Math.floor(/60);
-                var sec =  % 60;
-                var str = '有效期剩余: ' + (m<10?'0'+m:m) + ':' + (sec<10?'0'+sec:sec);
-                countdownEl.textContent = str;
+                var m = Math.floor(remaining / 60);
+                var  = remaining % 60;
+                countdownEl.textContent = '有效期剩余: ' + (m<10?'0'+m:'') + ':' + (<10?'0'+:'') + ;
+            }
+
+            // 修复显示格式
+            function updateDisplayFixed() {
+                var m = Math.floor(remaining / 60);
+                var  = remaining % 60;
+                var mm = m < 10 ? '0' + m : '' + m;
+                var ss =  < 10 ? '0' +  : '' + ;
+                countdownEl.textContent = '有效期剩余: ' + mm + ':' + ss;
             }
 
             function startTimer() {
                 if (timer) clearInterval(timer);
                 remaining = 59;
-                updateDisplay();
+                updateDisplayFixed();
                 countdownEl.style.color = '#555';
                 timer = setInterval(function(){
                     remaining--;
-                    updateDisplay();
+                    updateDisplayFixed();
                     if (remaining <= 0) {
                         clearInterval(timer);
                         timer = null;
@@ -403,17 +439,15 @@
                 }, 1000);
             }
 
-            // 刷新：切换二维码 + 重置倒计时
+            // 刷新
             function refreshCode() {
                 currentQR = currentQR === 0 ? 1 : 0;
-                drawCurrentQR();
+                showCurrentQR();
                 startTimer();
             }
 
-            // 刷新按钮
             document.getElementById('refreshBtn').onclick = refreshCode;
 
-            // Toast提示
             function showToast(msg) {
                 var toast = document.getElementById('toast');
                 toast.textContent = msg;
@@ -423,18 +457,18 @@
                 }, 1500);
             }
 
-            // 返回按钮
             document.getElementById('backBtn').onclick = function(){
                 showToast('返回上一页');
             };
 
-            // 更多按钮
             document.getElementById('moreBtn').onclick = function(){
                 showToast('更多功能开发中');
             };
 
-            // 初始化
-            drawCurrentQR();
+            // 生成两个二维码
+            buildQRGrid('qrA', 1357);
+            buildQRGrid('qrB', 2468);
+            showCurrentQR();
             startTimer();
         };
     </script>

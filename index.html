@@ -64,7 +64,6 @@
             background: #f0f0f0;
         }
 
-        /* 中间留空，不显示文字 */
         .nav-spacer {
             flex: 1;
         }
@@ -204,7 +203,7 @@
             background: #e3f2fd;
         }
 
-        /* 二维码容器 - 放大 */
+        /* 二维码容器 */
         .qrcode-container {
             display: flex;
             justify-content: center;
@@ -220,7 +219,7 @@
             border: 1px solid #e0e0e0;
         }
 
-        /* 二维码说明文字 - 紧挨二维码 */
+        /* 二维码说明文字 */
         .qr-desc {
             text-align: center;
             color: #888;
@@ -266,7 +265,7 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- 顶部导航栏 - 中间无标题 -->
+        <!-- 顶部导航栏 -->
         <div class="navbar">
             <span class="back-btn" id="backBtn">←</span>
             <span class="nav-spacer"></span>
@@ -326,6 +325,10 @@
             var modules = 21;
             var moduleSize = size / modules;
 
+            // 当前二维码编号 (0 或 1)
+            var currentQR = 0;
+
+            // 绘制定位图案
             function drawFinder(x, y) {
                 ctx.fillStyle = '#000';
                 ctx.fillRect(x, y, 7*moduleSize, 7*moduleSize);
@@ -335,6 +338,7 @@
                 ctx.fillRect(x+2*moduleSize, y+2*moduleSize, 3*moduleSize, 3*moduleSize);
             }
 
+            // 检查是否在定位图案区域
             function isInFinder(row, col) {
                 if (row < 7 && col < 7) return true;
                 if (row < 7 && col >= 14) return true;
@@ -342,7 +346,8 @@
                 return false;
             }
 
-            function drawQRCode() {
+            // 绘制二维码 (seed不同，图案不同)
+            function drawQRCode(seed) {
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, size, size);
 
@@ -350,7 +355,6 @@
                 drawFinder(size-7*moduleSize, 0);
                 drawFinder(0, size-7*moduleSize);
 
-                var seed = new Date().getTime() % 10000;
                 for (var row = 0; row < modules; row++) {
                     for (var col = 0; col < modules; col++) {
                         if (isInFinder(row, col)) continue;
@@ -363,6 +367,14 @@
                 }
             }
 
+            // 绘制当前二维码
+            function drawCurrentQR() {
+                // 两个固定种子，图案稳定且不同
+                var seeds = [1357, 2468];
+                drawQRCode(seeds[currentQR]);
+            }
+
+            // 倒计时
             var countdownEl = document.getElementById('countdownDisplay');
             var remaining = 59;
             var timer = null;
@@ -391,13 +403,17 @@
                 }, 1000);
             }
 
+            // 刷新：切换二维码 + 重置倒计时
             function refreshCode() {
-                drawQRCode();
+                currentQR = currentQR === 0 ? 1 : 0;
+                drawCurrentQR();
                 startTimer();
             }
 
+            // 刷新按钮
             document.getElementById('refreshBtn').onclick = refreshCode;
 
+            // Toast提示
             function showToast(msg) {
                 var toast = document.getElementById('toast');
                 toast.textContent = msg;
@@ -407,15 +423,18 @@
                 }, 1500);
             }
 
+            // 返回按钮
             document.getElementById('backBtn').onclick = function(){
                 showToast('返回上一页');
             };
 
+            // 更多按钮
             document.getElementById('moreBtn').onclick = function(){
                 showToast('更多功能开发中');
             };
 
-            drawQRCode();
+            // 初始化
+            drawCurrentQR();
             startTimer();
         };
     </script>

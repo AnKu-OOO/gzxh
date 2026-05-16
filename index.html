@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>广州新华学院 · 新华码</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f2f2f7;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 420px;
+            background: #f2f2f7;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        /* 顶部导航栏 */
+        .navbar {
+            background: #ffffff;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 0.5px solid #e0e0e0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .back-btn {
+            font-size: 28px;
+            color: #000;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s;
+            user-select: none;
+            line-height: 1;
+        }
+        .back-btn:active {
+            background: #f0f0f0;
+        }
+
+        .nav-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #000;
+            letter-spacing: 1px;
+            white-space: nowrap;
+            flex: 1;
+            text-align: center;
+        }
+
+        .more-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+        .more-btn:active {
+            background: #f0f0f0;
+        }
+        .more-dot {
+            width: 4px;
+            height: 4px;
+            background: #000;
+            border-radius: 50%;
+        }
+
+        /* 主要内容区域 */
+        .main-content {
+            flex: 1;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* 卡片通用样式 */
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        /* 个人信息卡片 */
+        .profile-card {
+            display: flex;
+            align-items: center;
+        }
+
+        /* 用户头像 */
+        .avatar {
+            width: 44px;
+            height: 28px;
+            background: #1976d2;
+            border-radius: 6px 6px 10px 10px;
+            position: relative;
+            margin-right: 14px;
+            margin-top: 12px;
+            flex-shrink: 0;
+        }
+        .avatar::before {
+            content: '';
+            width: 24px;
+            height: 24px;
+            background: #1976d2;
+            border-radius: 50%;
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .profile-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .profile-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #000;
+        }
+
+        .profile-detail {
+            font-size: 14px;
+            color: #888;
+            line-height: 1.4;
+        }
+
+        /* 已认证标签 */
+        .verified-tag {
+            background: #e8f5e9;
+            border-radius: 20px;
+            padding: 6px 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #2e7d32;
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+        .verified-tag .check-icon {
+            font-size: 16px;
+            line-height: 1;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        /* 功能二维码卡片头部 */
+        .qr-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .qr-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #000;
+        }
+        .refresh-btn {
+            color: #1976d2;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            user-select: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .refresh-btn:active {
+            background: #e3f2fd;
+        }
+
+        /* 二维码容器 */
+        .qrcode-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        canvas {
+            display: block;
+            width: 200px;
+            height: 200px;
+            border-radius: 12px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+        }
+
+        /* 二维码说明文字 */
+        .qr-desc {
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        .qr-desc .countdown {
+            font-weight: 500;
+            color: #555;
+        }
+
+        /* 底部版权 */
+        .footer {
+            padding: 24px 16px 20px;
+            text-align: center;
+            font-size: 11px;
+            color: #aaaaaa;
+            letter-spacing: 0.5px;
+        }
+
+        /* 提示浮层 */
+        .toast {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.78);
+            color: #fff;
+            padding: 10px 22px;
+            border-radius: 22px;
+            font-size: 14px;
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 顶部导航栏 -->
+        <div class="navbar">
+            <span class="back-btn" id="backBtn">←</span>
+            <span class="nav-title">广州新华学院</span>
+            <span class="more-btn" id="moreBtn">
+                <span class="more-dot"></span>
+                <span class="more-dot"></span>
+                <span class="more-dot"></span>
+            </span>
+        </div>
+
+        <!-- 主体内容 -->
+        <div class="main-content">
+            <!-- 个人信息卡片 -->
+            <div class="card profile-card">
+                <div class="avatar"></div>
+                <div class="profile-info">
+                    <div class="profile-name">李智宇</div>
+                    <div class="profile-detail">25052171</div>
+                    <div class="profile-detail">25计算机科学与技术5班</div>
+                </div>
+                <div class="verified-tag">
+                    <span class="check-icon">✓</span> 已认证
+                </div>
+            </div>
+
+            <!-- 功能二维码卡片 -->
+            <div class="card">
+                <div class="qr-header">
+                    <span class="qr-title">广州新华学院</span>
+                    <span class="refresh-btn" id="refreshBtn">刷新</span>
+                </div>
+                <div class="qrcode-container">
+                    <canvas id="qrCanvas" width="200" height="200"></canvas>
+                </div>
+                <div class="qr-desc">
+                    <div>扫描二维码开门</div>
+                    <div class="countdown" id="countdownDisplay">有效期剩余: 00:59</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部版权 -->
+        <div class="footer">
+            © 2025 新华码 | 广州新华学院信息与网络中心
+        </div>
+    </div>
+
+    <!-- 提示浮层 -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // 页面加载完成后执行
+        window.onload = function() {
+            
+            // 获取canvas
+            var canvas = document.getElementById('qrCanvas');
+            var ctx = canvas.getContext('2d');
+            var size = 200;
+            var modules = 21;
+            var moduleSize = size / modules;
+
+            // 绘制三个定位图案
+            function drawFinder(x, y) {
+                // 外框7x7 深色
+                ctx.fillStyle = '#000';
+                ctx.fillRect(x, y, 7*moduleSize, 7*moduleSize);
+                // 内部5x5 白色
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(x+moduleSize, y+moduleSize, 5*moduleSize, 5*moduleSize);
+                // 中心3x3 深色
+                ctx.fillStyle = '#000';
+                ctx.fillRect(x+2*moduleSize, y+2*moduleSize, 3*moduleSize, 3*moduleSize);
+            }
+
+            // 检查是否在定位图案区域
+            function isInFinder(row, col) {
+                if (row < 7 && col < 7) return true;
+                if (row < 7 && col >= 14) return true;
+                if (row >= 14 && col < 7) return true;
+                return false;
+            }
+
+            // 绘制完整二维码
+            function drawQRCode() {
+                // 白色背景
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, size, size);
+
+                // 三个定位图案
+                drawFinder(0, 0);
+                drawFinder(size-7*moduleSize, 0);
+                drawFinder(0, size-7*moduleSize);
+
+                // 随机填充数据区域
+                var seed = new Date().getTime() % 10000;
+                for (var row = 0; row < modules; row++) {
+                    for (var col = 0; col < modules; col++) {
+                        if (isInFinder(row, col)) continue;
+                        var rand = ((row * 31 + col * 17 + seed) % 100) / 100;
+                        if (rand < 0.4) {
+                            ctx.fillStyle = '#000';
+                            ctx.fillRect(col*moduleSize, row*moduleSize, moduleSize, moduleSize);
+                        }
+                    }
+                }
+            }
+
+            // 倒计时
+            var countdownEl = document.getElementById('countdownDisplay');
+            var remaining = 59;
+            var timer = null;
+
+            function updateDisplay() {
+                var  = remaining;
+                var m = Math.floor(/60);
+                var sec =  % 60;
+                var str = '有效期剩余: ' + (m<10?'0'+m:m) + ':' + (sec<10?'0'+sec:sec);
+                countdownEl.textContent = str;
+            }
+
+            function startTimer() {
+                if (timer) clearInterval(timer);
+                remaining = 59;
+                updateDisplay();
+                countdownEl.style.color = '#555';
+                timer = setInterval(function(){
+                    remaining--;
+                    updateDisplay();
+                    if (remaining <= 0) {
+                        clearInterval(timer);
+                        timer = null;
+                        countdownEl.style.color = '#bbb';
+                    }
+                }, 1000);
+            }
+
+            function refreshCode() {
+                drawQRCode();
+                startTimer();
+            }
+
+            // 刷新按钮
+            document.getElementById('refreshBtn').onclick = refreshCode;
+
+            // Toast提示
+            function showToast(msg) {
+                var toast = document.getElementById('toast');
+                toast.textContent = msg;
+                toast.classList.add('show');
+                setTimeout(function(){
+                    toast.classList.remove('show');
+                }, 1500);
+            }
+
+            // 返回按钮
+            document.getElementById('backBtn').onclick = function(){
+                showToast('返回上一页');
+            };
+
+            // 更多按钮
+            document.getElementById('moreBtn').onclick = function(){
+                showToast('更多功能开发中');
+            };
+
+            // 初始化
+            drawQRCode();
+            startTimer();
+        };
+    </script>
+</body>
+</html>

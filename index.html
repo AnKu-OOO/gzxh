@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>新华码 v3</title>
+    <title>新华码 v4</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -22,25 +22,14 @@
             flex-direction: column;
         }
         .navbar {
-            background: #fff;
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            background: #fff; padding: 12px 16px;
+            display: flex; align-items: center; justify-content: space-between;
             border-bottom: 0.5px solid #e0e0e0;
         }
-        .back-btn {
-            font-size: 28px; cursor: pointer; width: 36px; height: 36px;
-            display: flex; align-items: center; justify-content: center;
-        }
+        .back-btn { font-size: 28px; cursor: pointer; }
         .nav-spacer { flex: 1; }
-        .more-btn {
-            display: flex; flex-direction: column; gap: 3px;
-            width: 36px; height: 36px; align-items: center; justify-content: center;
-        }
-        .more-dot {
-            width: 4px; height: 4px; background: #000; border-radius: 50%;
-        }
+        .more-btn { display: flex; flex-direction: column; gap: 3px; }
+        .more-dot { width: 4px; height: 4px; background: #000; border-radius: 50%; }
         .main { padding: 16px; display: flex; flex-direction: column; gap: 16px; flex: 1; }
         .card {
             background: #fff; border-radius: 16px; padding: 16px;
@@ -77,18 +66,12 @@
         .qr-box {
             display: flex; justify-content: center; margin-bottom: 6px;
         }
-        /* 二维码网格 */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(21, 1fr);
-            grid-template-rows: repeat(21, 1fr);
+        canvas {
+            display: block;
             width: 260px; height: 260px;
-            background: #fff; border: 2px solid #ccc; border-radius: 8px;
-            overflow: hidden;
+            border: 2px solid #e0e0e0; border-radius: 8px;
+            background: #fff;
         }
-        .cell { background: #fff; }
-        .cell.black { background: #000; }
-        .hidden { display: none !important; }
         .qr-desc { text-align: center; color: #888; font-size: 14px; line-height: 1.8; }
         .countdown { font-weight: 500; color: #555; }
         .footer {
@@ -104,14 +87,12 @@
 </head>
 <body>
 <div class="app">
-    <div class="version-tag">v3</div> <!-- 版本标识 -->
+    <div class="version-tag">v4</div>
     <div class="navbar">
         <span class="back-btn" id="backBtn">←</span>
         <span class="nav-spacer"></span>
         <span class="more-btn" id="moreBtn">
-            <span class="more-dot"></span>
-            <span class="more-dot"></span>
-            <span class="more-dot"></span>
+            <span class="more-dot"></span><span class="more-dot"></span><span class="more-dot"></span>
         </span>
     </div>
 
@@ -132,8 +113,7 @@
                 <span class="refresh-btn" id="refreshBtn">刷新</span>
             </div>
             <div class="qr-box">
-                <div class="grid" id="qrA"></div>
-                <div class="grid hidden" id="qrB"></div>
+                <canvas id="qrCanvas" width="260" height="260"></canvas>
             </div>
             <div class="qr-desc">
                 <div>扫描二维码开门</div>
@@ -147,83 +127,106 @@
 
 <script>
     (function() {
-        // 生成21x21二维码网格
-        function makeGrid(containerId, seed) {
-            var box = document.getElementById(containerId);
-            box.innerHTML = '';
-            for (var r = 0; r < 21; r++) {
-                for (var c = 0; c < 21; c++) {
-                    var cell = document.createElement('div');
-                    cell.className = 'cell';
-                    // 定位图案（三个角）
-                    var inFinder = (r<7 && c<7) || (r<7 && c>=14) || (r>=14 && c<7);
-                    var black = false;
-                    if (inFinder) {
-                        if ((r===0||r===6||c===0||c===6) || (r>=2&&r<=4&&c>=2&&c<=4)) black = true;
-                    } else {
-                        var rand = (r*31 + c*17 + seed) % 100;
-                        if (rand < 45) black = true;
+        var canvas = document.getElementById('qrCanvas');
+        var ctx = canvas.getContext('2d');
+        var size = 260;
+        var modules = 21;
+        var moduleSize = size / modules;
+
+        // 两个不同种子，对应两张码
+        var seeds = [1357, 2468];
+        var currentIndex = 0; // 0 或 1
+
+        // 绘制定位图案
+        function drawFinder(ctx, x, y) {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(x, y, 7*moduleSize, 7*moduleSize);
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(x+moduleSize, y+moduleSize, 5*moduleSize, 5*moduleSize);
+            ctx.fillStyle = '#000';
+            ctx.fillRect(x+2*moduleSize, y+2*moduleSize, 3*moduleSize, 3*moduleSize);
+        }
+
+        function isInFinder(row, col) {
+            return (row < 7 && col < 7) || (row < 7 && col >= 14) || (row >= 14 && col < 7);
+        }
+
+        // 根据种子绘制完整二维码
+        function drawQR(seed) {
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, size, size);
+
+            // 三个定位图案
+            drawFinder(ctx, 0, 0);
+            drawFinder(ctx, size - 7*moduleSize, 0);
+            drawFinder(ctx, 0, size - 7*moduleSize);
+
+            // 数据区域
+            for (var r = 0; r < modules; r++) {
+                for (var c = 0; c < modules; c++) {
+                    if (isInFinder(r, c)) continue;
+                    var rand = (r * 31 + c * 17 + seed) % 100;
+                    if (rand < 45) { // 45% 黑色，图案明显
+                        ctx.fillStyle = '#000';
+                        ctx.fillRect(c*moduleSize, r*moduleSize, moduleSize, moduleSize);
                     }
-                    if (black) cell.classList.add('black');
-                    box.appendChild(cell);
                 }
             }
         }
 
-        makeGrid('qrA', 1357);
-        makeGrid('qrB', 2468);
-        var current = 'A';
-        document.getElementById('qrB').classList.add('hidden');
+        // 重绘当前码
+        function refreshQR() {
+            currentIndex = currentIndex === 0 ? 1 : 0;
+            drawQR(seeds[currentIndex]);
+            // 重置倒计时
+            resetTimer();
+        }
 
-        // 倒计时
+        // ---------- 倒计时 ----------
         var timerEl = document.getElementById('timer');
-        var left = 59;
+        var remaining = 59;
         var timerId = null;
 
-        function pad(n) { return n < 10 ? '0' + n : '' + n; }
-        function updateTimer() {
-            timerEl.textContent = '有效期剩余: ' + pad(Math.floor(left/60)) + ':' + pad(left%60);
+        function formatTime() {
+            var m = Math.floor( / 60);
+            var sec =  % 60;
+            return (m < 10 ? '0' + m : m) + ':' + (sec < 10 ? '0' + sec : sec);
         }
-        function startTimer() {
+
+        function updateTimerDisplay() {
+            timerEl.textContent = '有效期剩余: ' + formatTime(remaining);
+        }
+
+        function resetTimer() {
             if (timerId) clearInterval(timerId);
-            left = 59;
-            updateTimer();
+            remaining = 59;
+            updateTimerDisplay();
             timerEl.style.color = '#555';
             timerId = setInterval(function() {
-                left--;
-                updateTimer();
-                if (left <= 0) {
+                remaining--;
+                updateTimerDisplay();
+                if (remaining <= 0) {
                     clearInterval(timerId);
                     timerId = null;
                     timerEl.style.color = '#bbb';
                 }
             }, 1000);
         }
-        startTimer();
 
-        // 刷新：切换二维码 + 重置倒计时
-        document.getElementById('refreshBtn').onclick = function() {
-            var a = document.getElementById('qrA');
-            var b = document.getElementById('qrB');
-            if (current === 'A') {
-                a.classList.add('hidden');
-                b.classList.remove('hidden');
-                current = 'B';
-            } else {
-                b.classList.add('hidden');
-                a.classList.remove('hidden');
-                current = 'A';
-            }
-            startTimer();
-        };
+        // 初始化
+        drawQR(seeds[0]);
+        resetTimer();
+
+        // 绑定刷新按钮
+        document.getElementById('refreshBtn').addEventListener('click', refreshQR);
 
         // 顶部按钮
-        document.getElementById('backBtn').onclick = function() {
+        document.getElementById('backBtn').addEventListener('click', function() {
             alert('返回上一页');
-        };
-        document.getElementById('moreBtn').onclick = function() {
+        });
+        document.getElementById('moreBtn').addEventListener('click', function() {
             alert('更多功能');
-        };
+        });
     })();
 </script>
 </body>

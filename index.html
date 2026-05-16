@@ -3,34 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>广州新华学院 · 新华码</title>
+    <title>新华码 v3</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: -apple-system, sans-serif;
             background: #f2f2f7;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
             min-height: 100vh;
         }
-
-        .app-container {
+        .app {
             width: 100%;
             max-width: 420px;
             background: #f2f2f7;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 0 20px rgba(0,0,0,0.05);
         }
-
-        /* 顶部导航栏 */
         .navbar {
             background: #fff;
             padding: 12px 16px;
@@ -38,383 +28,203 @@
             align-items: center;
             justify-content: space-between;
             border-bottom: 0.5px solid #e0e0e0;
-            position: sticky;
-            top: 0;
-            z-index: 10;
         }
-
         .back-btn {
-            font-size: 28px;
-            color: #000;
-            cursor: pointer;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            user-select: none;
+            font-size: 28px; cursor: pointer; width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
         }
-        .back-btn:active {
-            background: #f0f0f0;
-        }
-
-        .nav-spacer {
-            flex: 1;
-        }
-
+        .nav-spacer { flex: 1; }
         .more-btn {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-            width: 36px;
-            height: 36px;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border-radius: 50%;
-        }
-        .more-btn:active {
-            background: #f0f0f0;
+            display: flex; flex-direction: column; gap: 3px;
+            width: 36px; height: 36px; align-items: center; justify-content: center;
         }
         .more-dot {
-            width: 4px;
-            height: 4px;
-            background: #000;
-            border-radius: 50%;
+            width: 4px; height: 4px; background: #000; border-radius: 50%;
         }
-
-        .main-content {
-            flex: 1;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
+        .main { padding: 16px; display: flex; flex-direction: column; gap: 16px; flex: 1; }
         .card {
-            background: #fff;
-            border-radius: 16px;
-            padding: 16px;
+            background: #fff; border-radius: 16px; padding: 16px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.06);
         }
-
-        .profile-card {
-            display: flex;
-            align-items: center;
-        }
-
+        .profile-card { display: flex; align-items: center; }
         .avatar {
-            width: 44px;
-            height: 28px;
-            background: #1976d2;
-            border-radius: 6px 6px 10px 10px;
-            position: relative;
-            margin-right: 14px;
-            margin-top: 12px;
-            flex-shrink: 0;
+            width: 44px; height: 28px; background: #1976d2;
+            border-radius: 6px 6px 10px 10px; position: relative;
+            margin-right: 14px; margin-top: 12px; flex-shrink: 0;
         }
         .avatar::before {
-            content: '';
-            width: 24px;
-            height: 24px;
-            background: #1976d2;
-            border-radius: 50%;
-            position: absolute;
-            top: -18px;
-            left: 50%;
+            content: ''; width: 24px; height: 24px; background: #1976d2;
+            border-radius: 50%; position: absolute; top: -18px; left: 50%;
             transform: translateX(-50%);
         }
-
-        .profile-info {
-            flex: 1;
-        }
-        .profile-name {
-            font-size: 18px;
-            font-weight: 700;
-            color: #000;
-        }
-        .profile-detail {
-            font-size: 14px;
-            color: #888;
-            line-height: 1.4;
-        }
-
+        .profile-info { flex: 1; }
+        .profile-name { font-size: 18px; font-weight: 700; }
+        .profile-detail { font-size: 14px; color: #888; line-height: 1.4; }
         .verified-tag {
-            background: #e8f5e9;
-            border-radius: 20px;
-            padding: 6px 14px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            color: #2e7d32;
-            font-size: 13px;
-            font-weight: 500;
-            margin-left: 8px;
-            white-space: nowrap;
+            background: #e8f5e9; border-radius: 20px; padding: 6px 14px;
+            display: flex; align-items: center; gap: 5px; color: #2e7d32;
+            font-size: 13px; font-weight: 500; margin-left: 8px;
         }
-        .verified-tag .check-icon {
-            font-weight: bold;
-        }
-
         .qr-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 16px;
         }
-        .qr-title {
-            font-size: 17px;
-            font-weight: 700;
-            color: #000;
-        }
+        .qr-title { font-size: 17px; font-weight: 700; }
         .refresh-btn {
-            color: #1976d2;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            padding: 6px 12px;
-            border-radius: 8px;
-            user-select: none;
+            color: #1976d2; font-size: 15px; font-weight: 500;
+            padding: 6px 12px; border-radius: 8px; cursor: pointer;
         }
-        .refresh-btn:active {
-            background: #e3f2fd;
+        .qr-box {
+            display: flex; justify-content: center; margin-bottom: 6px;
         }
-
-        .qrcode-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 8px;
-            padding: 10px 0;
-        }
-
         /* 二维码网格 */
-        .qr-grid {
-            width: 260px;
-            height: 260px;
+        .grid {
             display: grid;
             grid-template-columns: repeat(21, 1fr);
             grid-template-rows: repeat(21, 1fr);
-            background: #fff;
-            border: 2px solid #d0d0d0;
-            border-radius: 10px;
+            width: 260px; height: 260px;
+            background: #fff; border: 2px solid #ccc; border-radius: 8px;
             overflow: hidden;
         }
-
-        .qr-cell {
-            background: #fff;
-        }
-        .qr-cell.dark {
-            background: #000;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        .qr-desc {
-            text-align: center;
-            color: #888;
-            font-size: 14px;
-            line-height: 1.8;
-        }
-        .countdown {
-            font-weight: 500;
-            color: #555;
-        }
-
+        .cell { background: #fff; }
+        .cell.black { background: #000; }
+        .hidden { display: none !important; }
+        .qr-desc { text-align: center; color: #888; font-size: 14px; line-height: 1.8; }
+        .countdown { font-weight: 500; color: #555; }
         .footer {
-            padding: 24px 16px 20px;
-            text-align: center;
-            font-size: 11px;
-            color: #aaa;
-            letter-spacing: 0.5px;
+            padding: 20px 16px; text-align: center;
+            font-size: 11px; color: #aaa; letter-spacing: 0.5px;
         }
-
-        .toast {
-            position: fixed;
-            top: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.78);
-            color: #fff;
-            padding: 10px 22px;
-            border-radius: 22px;
-            font-size: 14px;
-            z-index: 999;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            white-space: nowrap;
-        }
-        .toast.show {
-            opacity: 1;
+        .version-tag {
+            position: fixed; top: 5px; right: 8px;
+            background: red; color: #fff; font-size: 10px;
+            padding: 2px 6px; border-radius: 10px; z-index: 999;
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <div class="navbar">
-            <span class="back-btn" id="backBtn">←</span>
-            <span class="nav-spacer"></span>
-            <span class="more-btn" id="moreBtn">
-                <span class="more-dot"></span>
-                <span class="more-dot"></span>
-                <span class="more-dot"></span>
-            </span>
+<div class="app">
+    <div class="version-tag">v3</div> <!-- 版本标识 -->
+    <div class="navbar">
+        <span class="back-btn" id="backBtn">←</span>
+        <span class="nav-spacer"></span>
+        <span class="more-btn" id="moreBtn">
+            <span class="more-dot"></span>
+            <span class="more-dot"></span>
+            <span class="more-dot"></span>
+        </span>
+    </div>
+
+    <div class="main">
+        <div class="card profile-card">
+            <div class="avatar"></div>
+            <div class="profile-info">
+                <div class="profile-name">李智宇</div>
+                <div class="profile-detail">25052171</div>
+                <div class="profile-detail">25计算机科学与技术5班</div>
+            </div>
+            <div class="verified-tag">✓ 已认证</div>
         </div>
 
-        <div class="main-content">
-            <!-- 个人信息卡 -->
-            <div class="card profile-card">
-                <div class="avatar"></div>
-                <div class="profile-info">
-                    <div class="profile-name">李智宇</div>
-                    <div class="profile-detail">25052171</div>
-                    <div class="profile-detail">25计算机科学与技术5班</div>
-                </div>
-                <div class="verified-tag">
-                    <span class="check-icon">✓</span> 已认证
-                </div>
+        <div class="card">
+            <div class="qr-header">
+                <span class="qr-title">广州新华学院</span>
+                <span class="refresh-btn" id="refreshBtn">刷新</span>
             </div>
-
-            <!-- 二维码卡片 -->
-            <div class="card">
-                <div class="qr-header">
-                    <span class="qr-title">广州新华学院</span>
-                    <span class="refresh-btn" id="refreshBtn">刷新</span>
-                </div>
-                <div class="qrcode-container">
-                    <div class="qr-grid" id="qrA"></div>
-                    <div class="qr-grid hidden" id="qrB"></div>
-                </div>
-                <div class="qr-desc">
-                    <div>扫描二维码开门</div>
-                    <div class="countdown" id="countdownDisplay">有效期剩余: 00:59</div>
-                </div>
+            <div class="qr-box">
+                <div class="grid" id="qrA"></div>
+                <div class="grid hidden" id="qrB"></div>
             </div>
-        </div>
-
-        <div class="footer">
-            © 2025 新华码 | 广州新华学院信息与网络中心
+            <div class="qr-desc">
+                <div>扫描二维码开门</div>
+                <div class="countdown" id="timer">有效期剩余: 00:59</div>
+            </div>
         </div>
     </div>
 
-    <div class="toast" id="toast"></div>
+    <div class="footer">© 2025 新华码 | 广州新华学院信息与网络中心</div>
+</div>
 
-    <script>
-        (function() {
-            const MODULES = 21;
-            let currentQR = 0; // 0=A, 1=B
-
-            // 定位图案判断
-            function isInFinder(row, col) {
-                return (row < 7 && col < 7) || (row < 7 && col >= 14) || (row >= 14 && col < 7);
-            }
-
-            function isOuterFrame(row, col, startR, startC) {
-                const r = row - startR;
-                const c = col - startC;
-                return r === 0 || r === 6 || c === 0 || c === 6;
-            }
-
-            function isInnerBlock(row, col, startR, startC) {
-                const r = row - startR;
-                const c = col - startC;
-                return r >= 2 && r <= 4 && c >= 2 && c <= 4;
-            }
-
-            // 生成网格
-            function buildQR(containerId, seed) {
-                const container = document.getElementById(containerId);
-                container.innerHTML = '';
-                for (let row = 0; row < MODULES; row++) {
-                    for (let col = 0; col < MODULES; col++) {
-                        const cell = document.createElement('div');
-                        cell.className = 'qr-cell';
-                        let dark = false;
-
-                        // 定位图案：外框 + 内部小方块
-                        if (row < 7 && col < 7) {
-                            if (isOuterFrame(row, col, 0, 0) || isInnerBlock(row, col, 0, 0)) dark = true;
-                        } else if (row < 7 && col >= 14) {
-                            if (isOuterFrame(row, col, 0, 14) || isInnerBlock(row, col, 0, 14)) dark = true;
-                        } else if (row >= 14 && col < 7) {
-                            if (isOuterFrame(row, col, 14, 0) || isInnerBlock(row, col, 14, 0)) dark = true;
-                        } else if (!isInFinder(row, col)) {
-                            // 数据区域，用伪随机决定是否黑色
-                            const rand = ((row * 31 + col * 17 + seed) % 100) / 100;
-                            // 提高黑色密度，使图案明显
-                            if (rand < 0.45) dark = true;
-                        }
-
-                        if (dark) cell.classList.add('dark');
-                        container.appendChild(cell);
+<script>
+    (function() {
+        // 生成21x21二维码网格
+        function makeGrid(containerId, seed) {
+            var box = document.getElementById(containerId);
+            box.innerHTML = '';
+            for (var r = 0; r < 21; r++) {
+                for (var c = 0; c < 21; c++) {
+                    var cell = document.createElement('div');
+                    cell.className = 'cell';
+                    // 定位图案（三个角）
+                    var inFinder = (r<7 && c<7) || (r<7 && c>=14) || (r>=14 && c<7);
+                    var black = false;
+                    if (inFinder) {
+                        if ((r===0||r===6||c===0||c===6) || (r>=2&&r<=4&&c>=2&&c<=4)) black = true;
+                    } else {
+                        var rand = (r*31 + c*17 + seed) % 100;
+                        if (rand < 45) black = true;
                     }
+                    if (black) cell.classList.add('black');
+                    box.appendChild(cell);
                 }
             }
+        }
 
-            // 显示当前二维码
-            function showCurrent() {
-                document.getElementById('qrA').classList.toggle('hidden', currentQR !== 0);
-                document.getElementById('qrB').classList.toggle('hidden', currentQR !== 1);
+        makeGrid('qrA', 1357);
+        makeGrid('qrB', 2468);
+        var current = 'A';
+        document.getElementById('qrB').classList.add('hidden');
+
+        // 倒计时
+        var timerEl = document.getElementById('timer');
+        var left = 59;
+        var timerId = null;
+
+        function pad(n) { return n < 10 ? '0' + n : '' + n; }
+        function updateTimer() {
+            timerEl.textContent = '有效期剩余: ' + pad(Math.floor(left/60)) + ':' + pad(left%60);
+        }
+        function startTimer() {
+            if (timerId) clearInterval(timerId);
+            left = 59;
+            updateTimer();
+            timerEl.style.color = '#555';
+            timerId = setInterval(function() {
+                left--;
+                updateTimer();
+                if (left <= 0) {
+                    clearInterval(timerId);
+                    timerId = null;
+                    timerEl.style.color = '#bbb';
+                }
+            }, 1000);
+        }
+        startTimer();
+
+        // 刷新：切换二维码 + 重置倒计时
+        document.getElementById('refreshBtn').onclick = function() {
+            var a = document.getElementById('qrA');
+            var b = document.getElementById('qrB');
+            if (current === 'A') {
+                a.classList.add('hidden');
+                b.classList.remove('hidden');
+                current = 'B';
+            } else {
+                b.classList.add('hidden');
+                a.classList.remove('hidden');
+                current = 'A';
             }
-
-            // ---------- 倒计时 ----------
-            const countdownEl = document.getElementById('countdownDisplay');
-            let remaining = 59;
-            let timer = null;
-
-            function formatTime(sec) {
-                const m = Math.floor(sec / 60);
-                const  = sec % 60;
-                return String(m).padStart(2, '0') + ':' + String().padStart(2, '0');
-            }
-
-            function updateCountdown() {
-                countdownEl.textContent = '有效期剩余: ' + formatTime(remaining);
-            }
-
-            function startTimer() {
-                if (timer) clearInterval(timer);
-                remaining = 59;
-                updateCountdown();
-                countdownEl.style.color = '#555';
-                timer = setInterval(() => {
-                    remaining--;
-                    updateCountdown();
-                    if (remaining <= 0) {
-                        clearInterval(timer);
-                        timer = null;
-                        countdownEl.style.color = '#bbb';
-                    }
-                }, 1000);
-            }
-
-            // 刷新按钮
-            document.getElementById('refreshBtn').addEventListener('click', () => {
-                currentQR = currentQR === 0 ? 1 : 0;
-                showCurrent();
-                startTimer();
-            });
-
-            // 导航按钮
-            function showToast(msg) {
-                const toast = document.getElementById('toast');
-                toast.textContent = msg;
-                toast.classList.add('show');
-                setTimeout(() => toast.classList.remove('show'), 1500);
-            }
-
-            document.getElementById('backBtn').addEventListener('click', () => showToast('返回上一页'));
-            document.getElementById('moreBtn').addEventListener('click', () => showToast('更多功能开发中'));
-
-            // 初始化
-            buildQR('qrA', 1357);
-            buildQR('qrB', 2468);
-            showCurrent();
             startTimer();
-        })();
-    </script>
+        };
+
+        // 顶部按钮
+        document.getElementById('backBtn').onclick = function() {
+            alert('返回上一页');
+        };
+        document.getElementById('moreBtn').onclick = function() {
+            alert('更多功能');
+        };
+    })();
+</script>
 </body>
 </html>

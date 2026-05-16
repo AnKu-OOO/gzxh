@@ -64,14 +64,9 @@
             background: #f0f0f0;
         }
 
-        .nav-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #000;
-            letter-spacing: 1px;
-            white-space: nowrap;
+        /* 中间留空，不显示文字 */
+        .nav-spacer {
             flex: 1;
-            text-align: center;
         }
 
         .more-btn {
@@ -188,7 +183,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
         .qr-title {
             font-size: 17px;
@@ -209,27 +204,29 @@
             background: #e3f2fd;
         }
 
-        /* 二维码容器 */
+        /* 二维码容器 - 放大 */
         .qrcode-container {
             display: flex;
             justify-content: center;
-            margin-bottom: 16px;
+            margin-bottom: 8px;
+            padding: 10px 0;
         }
         canvas {
             display: block;
-            width: 200px;
-            height: 200px;
+            width: 260px;
+            height: 260px;
             border-radius: 12px;
             background: #fff;
             border: 1px solid #e0e0e0;
         }
 
-        /* 二维码说明文字 */
+        /* 二维码说明文字 - 紧挨二维码 */
         .qr-desc {
             text-align: center;
             color: #888;
             font-size: 14px;
             line-height: 1.8;
+            margin-top: 0;
         }
         .qr-desc .countdown {
             font-weight: 500;
@@ -269,10 +266,10 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- 顶部导航栏 -->
+        <!-- 顶部导航栏 - 中间无标题 -->
         <div class="navbar">
             <span class="back-btn" id="backBtn">←</span>
-            <span class="nav-title">广州新华学院</span>
+            <span class="nav-spacer"></span>
             <span class="more-btn" id="moreBtn">
                 <span class="more-dot"></span>
                 <span class="more-dot"></span>
@@ -302,7 +299,7 @@
                     <span class="refresh-btn" id="refreshBtn">刷新</span>
                 </div>
                 <div class="qrcode-container">
-                    <canvas id="qrCanvas" width="200" height="200"></canvas>
+                    <canvas id="qrCanvas" width="260" height="260"></canvas>
                 </div>
                 <div class="qr-desc">
                     <div>扫描二维码开门</div>
@@ -321,30 +318,23 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        // 页面加载完成后执行
         window.onload = function() {
             
-            // 获取canvas
             var canvas = document.getElementById('qrCanvas');
             var ctx = canvas.getContext('2d');
-            var size = 200;
+            var size = 260;
             var modules = 21;
             var moduleSize = size / modules;
 
-            // 绘制三个定位图案
             function drawFinder(x, y) {
-                // 外框7x7 深色
                 ctx.fillStyle = '#000';
                 ctx.fillRect(x, y, 7*moduleSize, 7*moduleSize);
-                // 内部5x5 白色
                 ctx.fillStyle = '#fff';
                 ctx.fillRect(x+moduleSize, y+moduleSize, 5*moduleSize, 5*moduleSize);
-                // 中心3x3 深色
                 ctx.fillStyle = '#000';
                 ctx.fillRect(x+2*moduleSize, y+2*moduleSize, 3*moduleSize, 3*moduleSize);
             }
 
-            // 检查是否在定位图案区域
             function isInFinder(row, col) {
                 if (row < 7 && col < 7) return true;
                 if (row < 7 && col >= 14) return true;
@@ -352,18 +342,14 @@
                 return false;
             }
 
-            // 绘制完整二维码
             function drawQRCode() {
-                // 白色背景
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, size, size);
 
-                // 三个定位图案
                 drawFinder(0, 0);
                 drawFinder(size-7*moduleSize, 0);
                 drawFinder(0, size-7*moduleSize);
 
-                // 随机填充数据区域
                 var seed = new Date().getTime() % 10000;
                 for (var row = 0; row < modules; row++) {
                     for (var col = 0; col < modules; col++) {
@@ -377,7 +363,6 @@
                 }
             }
 
-            // 倒计时
             var countdownEl = document.getElementById('countdownDisplay');
             var remaining = 59;
             var timer = null;
@@ -411,10 +396,8 @@
                 startTimer();
             }
 
-            // 刷新按钮
             document.getElementById('refreshBtn').onclick = refreshCode;
 
-            // Toast提示
             function showToast(msg) {
                 var toast = document.getElementById('toast');
                 toast.textContent = msg;
@@ -424,17 +407,14 @@
                 }, 1500);
             }
 
-            // 返回按钮
             document.getElementById('backBtn').onclick = function(){
                 showToast('返回上一页');
             };
 
-            // 更多按钮
             document.getElementById('moreBtn').onclick = function(){
                 showToast('更多功能开发中');
             };
 
-            // 初始化
             drawQRCode();
             startTimer();
         };
